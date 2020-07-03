@@ -1,0 +1,12 @@
+import os
+from .env_vars import (
+    MYSQL_HOST_ENV_VAR,
+    MYSQL_PASS_ENV_VAR,
+    MYSQL_PORT_ENV_VAR,
+    MYSQL_USER_ENV_VAR,
+)
+
+MYSQL_HOST = os.getenv(MYSQL_HOST_ENV_VAR, "127.0.0.1")
+MYSQL_PASS = os.getenv(MYSQL_PASS_ENV_VAR)
+MYSQL_PORT = int(os.getenv(MYSQL_PORT_ENV_VAR, "3306"))
+MYSQL_USER = os.getenv(MYSQL_USER_ENV_VAR)
