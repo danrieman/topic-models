@@ -131,13 +131,13 @@ tp_res <- textProcessor(dat_docs, metadata=dat_meta, customstopwords=mallet_stop
                         lowercase=TRUE, removenumbers=FALSE, removepunctuation=FALSE, 
                         stem=FALSE, wordLengths=c(2,Inf), striphtml=TRUE, removestopwords=FALSE)
 
-# save(tp_res_tw, file='/sandata/rieman/stm/data/tp_res_tw.RData')
-# save(tp_res_fb, file='/sandata/rieman/stm/data/tp_res_fb.RData')
-# save(tp_res, file='/sandata/rieman/stm/data/tp_res.RData')
+# save(tp_res_tw, file='localdata/tp_res_tw.RData')
+# save(tp_res_fb, file='localdata/tp_res_fb.RData')
+# save(tp_res, file='localdata/tp_res.RData')
 
-# load('/sandata/rieman/stm/data/tp_res_tw.RData')
-# load('/sandata/rieman/stm/data/tp_res_fb.RData')
-# load('/sandata/rieman/stm/data/tp_res.RData')
+# load('localdata/tp_res_tw.RData')
+# load('localdata/tp_res_fb.RData')
+# load('localdata/tp_res.RData')
 
 pd_res_lwr200_tw <- prepDocuments(tp_res_tw$documents, tp_res_tw$vocab, tp_res_tw$meta, lower.thresh=200)
 # left with 4466 words
@@ -146,9 +146,9 @@ pd_res_lwr200_fb <- prepDocuments(tp_res_fb$documents, tp_res_fb$vocab, tp_res_f
 pd_res_lwr200 <- prepDocuments(tp_res$documents, tp_res$vocab, tp_res$meta, lower.thresh=200)
 # left with 8794 words
 
-save(pd_res_lwr200_tw, file='/sandata/rieman/stm/data/pd_res_lwr200_tw.RData')
-save(pd_res_lwr200_fb, file='/sandata/rieman/stm/data/pd_res_lwr200_fb.RData')
-save(pd_res_lwr200, file='/sandata/rieman/stm/data/pd_res_lwr200.RData')
+save(pd_res_lwr200_tw, file='localdata/pd_res_lwr200_tw.RData')
+save(pd_res_lwr200_fb, file='localdata/pd_res_lwr200_fb.RData')
+save(pd_res_lwr200, file='localdata/pd_res_lwr200.RData')
 
 
 docs_tw <- pd_res_lwr200_tw$documents
@@ -216,7 +216,7 @@ stm_k50_tw <- stm(
 )
 t_tot_tw <- Sys.time() - t0_tw
 cat('\n', t_tot_tw, '\n')
-save(stm_k50_tw, file='/sandata/rieman/stm/data/stm_k50_tw_alldata.RData')
+save(stm_k50_tw, file='localdata/stm_k50_tw_alldata.RData')
 
 # Run on fb
 # Finished after: Completing Iteration 112 (approx. per word bound = -7.517, relative change = 1.099e-05)
@@ -237,7 +237,7 @@ stm_k50_fb <- stm(
 )
 t_tot_fb <- Sys.time() - t0_fb
 cat('\n', t_tot_fb, '\n')
-save(stm_k50_fb, file='/sandata/rieman/stm/data/stm_k50_fb_alldata.RData')
+save(stm_k50_fb, file='localdata/stm_k50_fb_alldata.RData')
 
 # Run on all
 # Finished after: Completing Iteration 69 (approx. per word bound = -7.769, relative change = 1.098e-05)
@@ -258,7 +258,7 @@ stm_k50 <- stm(
 )
 t_tot <- Sys.time() - t0
 cat('\n', t_tot, '\n')
-save(stm_k50, file='/sandata/rieman/stm/data/stm_k50_alldata.RData')
+save(stm_k50, file='localdata/stm_k50_alldata.RData')
 
 
 #################################

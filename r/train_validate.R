@@ -2,13 +2,13 @@ library(dplyr)
 library(stm)
 
 # Load test/train assignments
-load('/sandata/rieman/stm/data/train_uids.RData')
-load('/sandata/rieman/stm/data/test_uids.RData')
+load('localdata/train_uids.RData')
+load('localdata/test_uids.RData')
 
 # Load processed documents
-load('/sandata/rieman/stm/data/tp_res.RData')
-load('/sandata/rieman/stm/data/tp_res_tw.RData')
-load('/sandata/rieman/stm/data/tp_res_fb.RData')
+load('localdata/tp_res.RData')
+load('localdata/tp_res_tw.RData')
+load('localdata/tp_res_fb.RData')
 
 
 # Define training boolean vectors
@@ -45,29 +45,29 @@ meta_t_fb <- lapply(tp_res_fb$meta, function(x)x[!istrain_fb])
 
 # Prep training data
 pd_res_lwr200 <- prepDocuments(docs, vocab, data.frame(meta), lower.thresh=200)
-save(pd_res_lwr200, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200.RData')
+save(pd_res_lwr200, file='localdata/test_train/pd_res_lwr200.RData')
 # Remaining: 
 
 pd_res_lwr200_tw <- prepDocuments(docs_tw, vocab_tw, data.frame(meta_tw), lower.thresh=200)
-save(pd_res_lwr200_tw, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200_tw.RData')
+save(pd_res_lwr200_tw, file='localdata/test_train/pd_res_lwr200_tw.RData')
 # Remaining: 592929 documents, 3134 terms, 2610102 tokens
 
 pd_res_lwr200_fb <- prepDocuments(docs_fb, vocab_fb, data.frame(meta_fb), lower.thresh=200)
-save(pd_res_lwr200_fb, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200_fb.RData')
+save(pd_res_lwr200_fb, file='localdata/test_train/pd_res_lwr200_fb.RData')
 # Remaining: 487337 documents, 3711 terms, 3271792 documents
 
 
 # Prep test data
 pd_res_lwr200_t <- prepDocuments(docs_t, vocab, data.frame(meta_t), lower.thresh=200)
-save(pd_res_lwr200_t, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200_t.RData')
+save(pd_res_lwr200_t, file='localdata/test_train/pd_res_lwr200_t.RData')
 # Remaining: 481321 documents, 3050 terms, 2490350 tokens
 
 pd_res_lwr200_t_tw <- prepDocuments(docs_t_tw, vocab_tw, data.frame(meta_t_tw), lower.thresh=200)
-save(pd_res_lwr200_t_tw, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200_t_tw.RData')
+save(pd_res_lwr200_t_tw, file='localdata/test_train/pd_res_lwr200_t_tw.RData')
 # Remaining: 264024 documents, 1443 terms, 1001693 tokens
 
 pd_res_lwr200_t_fb <- prepDocuments(docs_t_fb, vocab_fb, data.frame(meta_t_fb), lower.thresh=200)
-save(pd_res_lwr200_t_fb, file='/sandata/rieman/stm/data/test_train/pd_res_lwr200_t_fb.RData')
+save(pd_res_lwr200_t_fb, file='localdata/test_train/pd_res_lwr200_t_fb.RData')
 # Remaining: 207038 documents, 1608 terms, 1126904 tokens
 
 
@@ -93,7 +93,7 @@ stm_k50_tw <- stm(
 )
 t_tot_tw <- Sys.time() - t0_tw
 cat('\n', t_tot_tw, '\n')
-save(stm_k50_tw, file='/sandata/rieman/stm/data/stm_k50_tw.RData')
+save(stm_k50_tw, file='localdata/stm_k50_tw.RData')
 
 # Run on fb
 # Finished after: Completing Iteration 128 (approx. per word bound = -7.319, relative change = 1.015e-05)
@@ -113,7 +113,7 @@ stm_k50_fb <- stm(
 )
 t_tot_fb <- Sys.time() - t0_fb
 cat('\n', t_tot_fb, '\n')
-save(stm_k50_fb, file='/sandata/rieman/stm/data/stm_k50_fb.RData')
+save(stm_k50_fb, file='localdata/stm_k50_fb.RData')
 
 # Run on all
 K <- 50
@@ -133,7 +133,7 @@ stm_k50 <- stm(
 )
 t_tot <- Sys.time() - t0
 cat('\n', t_tot, '\n')
-save(stm_k50, file='/sandata/rieman/stm/data/stm_k50.RData')
+save(stm_k50, file='localdata/stm_k50.RData')
 
 
 #######################################
@@ -141,7 +141,7 @@ save(stm_k50, file='/sandata/rieman/stm/data/stm_k50.RData')
 #######################################
 
 # Run on tw
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200_tw.RData')
+load('localdata/test_train/pd_res_lwr200_tw.RData')
 K <- 100
 t0_tw <- Sys.time()
 stm_k100_tw <- stm(
@@ -158,10 +158,10 @@ stm_k100_tw <- stm(
 )
 t_tot_tw <- Sys.time() - t0_tw
 cat('\n', t_tot_tw, '\n')
-save(stm_k100_tw, file='/sandata/rieman/stm/data/stm_k100_tw.RData')
+save(stm_k100_tw, file='localdata/stm_k100_tw.RData')
 
 # Run on fb
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200_fb.RData')
+load('localdata/test_train/pd_res_lwr200_fb.RData')
 K <- 100
 t0_fb <- Sys.time()
 stm_k100_fb <- stm(
@@ -178,10 +178,10 @@ stm_k100_fb <- stm(
 )
 t_tot_fb <- Sys.time() - t0_fb
 cat('\n', t_tot_fb, '\n')
-save(stm_k100_fb, file='/sandata/rieman/stm/data/stm_k100_fb.RData')
+save(stm_k100_fb, file='localdata/stm_k100_fb.RData')
 
 # Run on all
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200.RData')
+load('localdata/test_train/pd_res_lwr200.RData')
 K <- 100
 t0 <- Sys.time()
 stm_k100 <- stm(
@@ -199,14 +199,14 @@ stm_k100 <- stm(
 )
 t_tot <- Sys.time() - t0
 cat('\n', t_tot, '\n')
-save(stm_k100, file='/sandata/rieman/stm/data/stm_k100.RData')
+save(stm_k100, file='localdata/stm_k100.RData')
 
 
 ####################################
 ### Try running stm::alignCorpus ###
 ####################################
 
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200_tw.RData')
+load('localdata/test_train/pd_res_lwr200_tw.RData')
 align_corp_t_tw <- alignCorpus(
     new=list(
         documents=docs_t_tw,
@@ -222,7 +222,7 @@ align_corp_t_tw <- alignCorpus(
 # and the old data contained 0.3% of the unique terms in the new data.
 # You have retained 1199003 tokens of the 2381519 tokens you started with (50.3%).
 
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200_fb.RData')
+load('localdata/test_train/pd_res_lwr200_fb.RData')
 align_corp_t_fb <- alignCorpus(
     new=list(
         documents=docs_t_fb,
@@ -238,7 +238,7 @@ align_corp_t_fb <- alignCorpus(
 # and the old data contained 0.7% of the unique terms in the new data.
 # You have retained 1487826 tokens of the 2438427 tokens you started with (61.0%).
 
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200.RData')
+load('localdata/test_train/pd_res_lwr200.RData')
 align_corp_t <- alignCorpus(
     new=list(
         documents=docs_t,
@@ -259,14 +259,14 @@ align_corp_t <- alignCorpus(
 ### Load trained models ###
 ###########################
 
-load('/sandata/rieman/stm/data/stm_k50_tw.RData')
-load('/sandata/rieman/stm/data/stm_k100_tw.RData')
+load('localdata/stm_k50_tw.RData')
+load('localdata/stm_k100_tw.RData')
 
-load('/sandata/rieman/stm/data/stm_k50_fb.RData')
-load('/sandata/rieman/stm/data/stm_k100_fb.RData')
+load('localdata/stm_k50_fb.RData')
+load('localdata/stm_k100_fb.RData')
 
-load('/sandata/rieman/stm/data/stm_k50.RData')
-load('/sandata/rieman/stm/data/stm_k100.RData')
+load('localdata/stm_k50.RData')
+load('localdata/stm_k100.RData')
 
 
 ############################
@@ -288,8 +288,8 @@ calc.mu <- function(model, df, model_formula) {
 
 
 library(stm); library(dplyr)
-load('/sandata/rieman/stm/data/stm_k50_tw.RData')
-load('/sandata/rieman/stm/data/test_train/pd_res_lwr200_tw.RData')
+load('localdata/stm_k50_tw.RData')
+load('localdata/test_train/pd_res_lwr200_tw.RData')
 doc_idx <- 1
 test_doc <- pd_res_lwr200_tw$documents[[doc_idx]]
 test_mu <- calc.mu(stm_k50_tw, pd_res_lwr200_tw$meta[doc_idx,], ~ age + gender)

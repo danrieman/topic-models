@@ -1,7 +1,7 @@
 library(dplyr)
 library(stm)
 
-load('/sandata/rieman/stm/data/tp_res.RData')
+load('localdata/tp_res.RData')
 
 meta_df <- data.frame(tp_res$meta)
 
@@ -23,5 +23,5 @@ test_gen2 <- uid_gen2[!uid_gen2 %in% train_gen2]
 train_uids <- sort(c(train_gen1, train_gen2))
 test_uids <- sort(c(test_gen1, test_gen2))
 
-save(train_uids, file='/sandata/rieman/stm/data/train_uids.RData')
-save(test_uids, file='/sandata/rieman/stm/data/test_uids.RData')
+save(train_uids, file='localdata/train_uids.RData')
+save(test_uids, file='localdata/test_uids.RData')
