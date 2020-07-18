@@ -1,0 +1,11 @@
+name: stm
+dependencies:
+  - r-base
+  - r-essentials
+  - r-dplyr
+  - r-ggplot2
+  #- r-stm
+  - r-irkernel
+  - r-glmnet
+  - jupyter
+
