@@ -59,22 +59,24 @@ def get_base_model(target: str) -> GridSearchCV:
 
     if model_type == "regression":
         pipe.append(("model", SVR(kernel="rbf")))
-        # scoring = make_scorer(mean_squared_error, greater_is_better=False)
         scoring = make_scorer(r2_score, greater_is_better=True)
+        param_grid = {
+            "pca__n_components": np.linspace(0.8, 1., 21),
+            "model__C": np.linspace(0.001, 2., 25),
+        }
     elif model_type == "classification":
         pipe.append(("model", SVC(kernel="rbf")))
         scoring = make_scorer(f1_score, greater_is_better=True, needs_threshold=True)
+        param_grid = {
+            "pca__n_components": np.linspace(0.85, 1., 16),
+            "model__C": np.linspace(10., 250., 25),
+        }
     else:
         raise NotImplementedError(f"Unsupported model_type: {model_type}")
 
     model = GridSearchCV(
         Pipeline(deepcopy(pipe)),
-        param_grid={
-            # "pca__n_components": np.linspace(0.85, 1., 16),
-            # "model__C": np.concatenate([np.arange(1, 10), np.linspace(10., 250., 25)], axis=None),
-            "pca__n_components": np.linspace(0.8, 1., 21),
-            "model__C": np.linspace(0.001, 2., 25),
-        },
+        param_grid=param_grid,
         n_jobs=os.cpu_count() - 1,
         cv=10,
         scoring=scoring,
@@ -240,9 +242,3 @@ class UserLevelTrainOnTwitterExperiment(UserLevelTrainOnFacebookExperiment):
         df_train = df_train.query(TWITTER_QUERY).groupby("user_id").mean().reset_index(drop=False).assign(is_fb=0)
         df_test = df_test.groupby(["user_id", "is_fb"]).mean().reset_index(drop=False)
         return df_train, df_test[df_train.columns]
-
-
-def main(target: str, k: int, with_domain: bool, data_dir: PosixPath) -> Experiment:
-    experiment = Experiment(target, k, with_domain, data_dir)
-    experiment.run()
-    return experiment
