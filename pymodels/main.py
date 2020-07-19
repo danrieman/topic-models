@@ -42,12 +42,12 @@ def pearsonr_score(y_true, y_pred) -> float:
         return pd.np.nan
 
 
-def get_base_model(target: str) -> Union[ElasticNetCV, LogisticRegressionCV]:
+def get_base_model(target: str) -> GridSearchCV:
     """Creates the unfit model for a given target based on the configs.MODEL_CONFIG
 
     :param target: str
         must be a key in configs.MODEL_CONFIG
-    :return: Union[ElasticNetCV, LogisticRegressionCV]
+    :return: GridSearchCV
 
     """
     try:
@@ -59,7 +59,8 @@ def get_base_model(target: str) -> Union[ElasticNetCV, LogisticRegressionCV]:
 
     if model_type == "regression":
         pipe.append(("model", SVR(kernel="rbf")))
-        scoring = mean_squared_error
+        # scoring = make_scorer(mean_squared_error, greater_is_better=False)
+        scoring = make_scorer(r2_score, greater_is_better=True)
     elif model_type == "classification":
         pipe.append(("model", SVC(kernel="rbf")))
         scoring = make_scorer(f1_score, greater_is_better=True, needs_threshold=True)
@@ -69,9 +70,10 @@ def get_base_model(target: str) -> Union[ElasticNetCV, LogisticRegressionCV]:
     model = GridSearchCV(
         Pipeline(deepcopy(pipe)),
         param_grid={
-            "pca__n_components": np.linspace(0.85, 1., 16),
-            "model__C": np.linspace(50., 250., 21),
-
+            # "pca__n_components": np.linspace(0.85, 1., 16),
+            # "model__C": np.concatenate([np.arange(1, 10), np.linspace(10., 250., 25)], axis=None),
+            "pca__n_components": np.linspace(0.8, 1., 21),
+            "model__C": np.linspace(0.001, 2., 25),
         },
         n_jobs=os.cpu_count() - 1,
         cv=10,
@@ -137,12 +139,16 @@ def load_data(target: str, k: int, with_domain: bool, data_dir: PosixPath) -> Tu
         train = DATA_CONFIG["without_domain"]["train"].format(k=k)
 
     try:
-        query = MODEL_CONFIG[target][query]
+        query = MODEL_CONFIG[target]["filter_query"]
     except KeyError as e:
         raise e
 
-    df_test = pd.read_csv(data_dir / test).query(query)
-    df_train = pd.read_csv(data_dir / train).query(query)
+    df_test = pd.read_csv(data_dir / test)
+    df_train = pd.read_csv(data_dir / train)
+    if len(query) > 0:
+        df_test = df_test.query(query)
+        df_train = df_train.query(query)
+
     return df_train, df_test
 
 
@@ -202,13 +208,13 @@ class UserLevelExperiment(Experiment):
         df_test = df_test.groupby("user_id").mean()
         return df_train, df_test
 
-class UserLevelTrainOnFacebook(Experiment):
+class UserLevelTrainOnFacebookExperiment(Experiment):
 
     def data(self):
         df_train, df_test = load_data(self.target, self.k, self.with_domain, self.data_dir)
-        df_train = df_train.query(FACEBOOK_QUERY).("user_id").mean().reset_index(drop=False).assign(is_fb=1)
+        df_train = df_train.query(FACEBOOK_QUERY).groupby("user_id").mean().reset_index(drop=False).assign(is_fb=1)
         df_test = df_test.groupby(["user_id", "is_fb"]).mean().reset_index(drop=False)
-        return df_train, df_test
+        return df_train, df_test[df_train.columns]
 
     def calc_metrics(self):
         is_fb = self.df_test["is_fb"].values == 1
@@ -222,18 +228,18 @@ class UserLevelTrainOnFacebook(Experiment):
                 "Twitter": v(y_test_tw, p_test_tw),
                 "Facebook": v(y_test_fb, p_test_fb),
             }
-            logger.info(f"Training Performance: ({k}, {self.metrics['Training'][k]})")
+            logger.info(f"Training Performance: ({k}, {self.metrics['Train'][k]})")
             logger.info(f"Test Facebook Performance: ({k}, {self.metrics['Test'][k]['Facebook']})")
             logger.info(f"Test Twitter Performance: ({k}, {self.metrics['Test'][k]['Twitter']})")
 
 
-class UserLevelTrainOnTwitterExperiment(UserLevelTrainOnFacebook):
+class UserLevelTrainOnTwitterExperiment(UserLevelTrainOnFacebookExperiment):
 
     def data(self):
         df_train, df_test = load_data(self.target, self.k, self.with_domain, self.data_dir)
-        df_train = df_train.query(TWITTER_QUERY).("user_id").mean().reset_index(drop=False).assign(is_fb=0)
+        df_train = df_train.query(TWITTER_QUERY).groupby("user_id").mean().reset_index(drop=False).assign(is_fb=0)
         df_test = df_test.groupby(["user_id", "is_fb"]).mean().reset_index(drop=False)
-        return df_train, df_test
+        return df_train, df_test[df_train.columns]
 
 
 def main(target: str, k: int, with_domain: bool, data_dir: PosixPath) -> Experiment:
