@@ -1,18 +1,19 @@
 import os
 from logging import getLogger
 from pathlib import PosixPath
-from typing import Tuple, Union
+from typing import Tuple
 from copy import deepcopy
 import pandas as pd
 import numpy as np
 from scipy.stats import pearsonr
 from sklearn.compose import ColumnTransformer
-from sklearn.svm import SVC, SVR
+from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import r2_score, accuracy_score, f1_score, make_scorer, mean_squared_error
+from sklearn.metrics import r2_score, accuracy_score, f1_score, make_scorer
+from sklearn.svm import SVC, SVR
 
 from .configs import (
     ALLOWED_TOPICS,
@@ -31,7 +32,15 @@ def pearsonr_score(y_true, y_pred) -> float:
         value = pearsonr(y_true, y_pred)
         return value[0]
     except TypeError:
-        value = pearsonr(y_true.reshape(-1), y_pred)
+        dim_true = len(y_true.shape)
+        dim_pred = len(y_pred.shape)
+        if dim_true == 2 and dim_pred == 2:
+            value = pearsonr(y_true.reshape(-1), y_pred.reshape(-1))
+        elif dim_true == 2:
+            value = pearsonr(y_true.reshape(-1), y_pred)
+        else:
+            value = pearsonr(y_true, y_pred.reshape(-1))
+
         return value[0]
     except Exception as e:
         logger.error(
@@ -58,18 +67,28 @@ def get_base_model(target: str) -> GridSearchCV:
     pipe = [("scaler", StandardScaler()), ("pca", PCA())]
 
     if model_type == "regression":
-        pipe.append(("model", SVR(kernel="rbf")))
-        scoring = make_scorer(r2_score, greater_is_better=True)
-        param_grid = {
-            "pca__n_components": np.linspace(0.8, 1., 21),
-            "model__C": np.linspace(0.001, 2., 25),
-        }
+        if True:
+            pipe.append(("model", Ridge(fit_intercept=True, normalize=False)))
+            # scoring = make_scorer(r2_score, greater_is_better=True)
+            scoring = make_scorer(pearsonr_score, greater_is_better=True)
+            param_grid = {
+                "pca__n_components": np.linspace(0.7, 1., 31),
+                "model__alpha": np.geomspace(1., 10000., 35),
+            }
+        else:
+            pipe.append(("model", SVR(kernel="rbf")))
+            scoring = make_scorer(r2_score, greater_is_better=True)
+            param_grid = {
+                "pca__n_components": np.linspace(0.8, 1., 21),
+                "model__C": np.linspace(0.001, 2., 25),
+            }
+
     elif model_type == "classification":
         pipe.append(("model", SVC(kernel="rbf")))
-        scoring = make_scorer(f1_score, greater_is_better=True, needs_threshold=True)
+        scoring = make_scorer(f1_score, greater_is_better=True, needs_proba=False)
         param_grid = {
-            "pca__n_components": np.linspace(0.85, 1., 16),
-            "model__C": np.linspace(10., 250., 25),
+            "pca__n_components": np.linspace(0.80, 1., 21),
+            "model__C": np.linspace(10., 300., 30),
         }
     else:
         raise NotImplementedError(f"Unsupported model_type: {model_type}")
@@ -209,6 +228,7 @@ class UserLevelExperiment(Experiment):
         df_train = df_train.groupby("user_id").mean()
         df_test = df_test.groupby("user_id").mean()
         return df_train, df_test
+
 
 class UserLevelTrainOnFacebookExperiment(Experiment):
 
