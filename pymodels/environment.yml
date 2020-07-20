@@ -1,0 +1,5 @@
+name: pystm-models
+dependencies:
+  - python=3.7
+  - scikit-learn=0.23.1
+  - pandas=1.0.3
